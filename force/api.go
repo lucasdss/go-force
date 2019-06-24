@@ -22,6 +22,7 @@ const (
 type API struct {
 	apiVersion             string
 	oauth                  *forceOauth
+	stream                 *forceStreaming
 	apiResources           map[string]string
 	apiSObjects            map[string]*SObjectMetaData
 	apiSObjectDescriptions map[string]*SObjectDescription
