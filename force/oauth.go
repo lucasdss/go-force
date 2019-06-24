@@ -11,21 +11,22 @@ import (
 
 const (
 	grantType    = "password"
-	loginUri     = "https://login.salesforce.com/services/oauth2/token"
-	testLoginUri = "https://test.salesforce.com/services/oauth2/token"
+	loginURI     = "https://login.salesforce.com/services/oauth2/token"
+	testLoginURI = "https://test.salesforce.com/services/oauth2/token"
 
 	invalidSessionErrorCode = "INVALID_SESSION_ID"
 )
 
 type forceOauth struct {
 	AccessToken string `json:"access_token"`
-	InstanceUrl string `json:"instance_url"`
-	Id          string `json:"id"`
+	InstanceURL string `json:"instance_url"`
+	ID          string `json:"id"`
 	IssuedAt    string `json:"issued_at"`
 	Signature   string `json:"signature"`
 
-	clientId      string
+	clientID      string
 	clientSecret  string
+	refreshToken  string
 	userName      string
 	password      string
 	securityToken string
@@ -33,14 +34,14 @@ type forceOauth struct {
 }
 
 func (oauth *forceOauth) Validate() error {
-	if oauth == nil || len(oauth.InstanceUrl) == 0 || len(oauth.AccessToken) == 0 {
+	if oauth == nil || len(oauth.InstanceURL) == 0 || len(oauth.AccessToken) == 0 {
 		return fmt.Errorf("Invalid Force Oauth Object: %#v", oauth)
 	}
 
 	return nil
 }
 
-func (oauth *forceOauth) Expired(apiErrors ApiErrors) bool {
+func (oauth *forceOauth) Expired(apiErrors APIErrors) bool {
 	for _, err := range apiErrors {
 		if err.ErrorCode == invalidSessionErrorCode {
 			return true
@@ -53,16 +54,16 @@ func (oauth *forceOauth) Expired(apiErrors ApiErrors) bool {
 func (oauth *forceOauth) Authenticate() error {
 	payload := url.Values{
 		"grant_type":    {grantType},
-		"client_id":     {oauth.clientId},
+		"client_id":     {oauth.clientID},
 		"client_secret": {oauth.clientSecret},
 		"username":      {oauth.userName},
 		"password":      {fmt.Sprintf("%v%v", oauth.password, oauth.securityToken)},
 	}
 
 	// Build Uri
-	uri := loginUri
+	uri := loginURI
 	if oauth.environment == "sandbox" {
-		uri = testLoginUri
+		uri = testLoginURI
 	}
 
 	// Build Body
@@ -71,7 +72,7 @@ func (oauth *forceOauth) Authenticate() error {
 	// Build Request
 	req, err := http.NewRequest("POST", uri, body)
 	if err != nil {
-		return fmt.Errorf("Error creating authenitcation request: %v", err)
+		return fmt.Errorf("Error creating authentication request: %v", err)
 	}
 
 	// Add Headers
@@ -91,7 +92,7 @@ func (oauth *forceOauth) Authenticate() error {
 	}
 
 	// Attempt to parse response as a force.com api error
-	apiError := &ApiError{}
+	apiError := &APIError{}
 	if err := json.Unmarshal(respBytes, apiError); err == nil {
 		// Check if api error is valid
 		if apiError.Validate() {

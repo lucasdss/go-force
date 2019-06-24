@@ -9,7 +9,7 @@ var baseFieldNameMap map[string]string
 
 func init() {
 	baseFieldNameMap = map[string]string{
-		"Id":               "Id",
+		"ID":               "ID",
 		"IsDeleted":        "IsDeleted",
 		"Name":             "Name",
 		"CreatedDate":      "CreatedDate",
@@ -23,7 +23,7 @@ func init() {
 // Base struct that contains fields that all objects, standard and custom, include.
 type BaseSObject struct {
 	Attributes       SObjectAttributes `force:"attributes,omitempty" json:"-"`
-	Id               string            `force:",omitempty" json:",omitempty"`
+	ID               string            `force:",omitempty" json:",omitempty"`
 	IsDeleted        bool              `force:",omitempty" json:",omitempty"`
 	Name             string            `force:",omitempty" json:",omitempty"`
 	CreatedDate      string            `force:",omitempty" json:",omitempty"`

@@ -2,7 +2,7 @@ package sobjects
 
 type Opportunity struct {
 	BaseSObject
-	AccountId       string  `force:",omitempty"`
+	AccountID       string  `force:",omitempty"`
 	Amount          float64 `force:",omitempty"`
 	CloseDate       string  `force:",omitempty"`
 	CurrencyIsoCode string  `force:",omitempty"`
@@ -17,7 +17,7 @@ type Opportunity struct {
 	StageName       string  `force:",omitempty"`
 }
 
-func (t *Opportunity) ApiName() string {
+func (t *Opportunity) APIName() string {
 	return "Opportunity"
 }
 
