@@ -14,11 +14,11 @@ import (
 )
 
 type forceStreaming struct {
-	ClientID             string
-	SubscribedPushTopics map[string]func([]byte, ...interface{})
-	Timeout              int
-	forceAPI             *API
-	longPollClient       *http.Client
+	ClientID       string
+	Subscriptions  map[string]func([]byte, ...interface{})
+	Timeout        int
+	forceAPI       *API
+	longPollClient *http.Client
 }
 
 func (s *forceStreaming) httpPost(payload string) (*http.Response, error) {
@@ -72,7 +72,7 @@ func (forceAPI *API) ConnectToStreamingAPI() {
 	var connectData []map[string]interface{}
 	json.Unmarshal(connBytes, &connectData)
 	for _, msg := range data {
-		cb := forceAPI.stream.SubscribedPushTopics[msg["channel"].(string)]
+		cb := forceAPI.stream.Subscriptions[msg["channel"].(string)]
 		if cb != nil {
 			cb(connBytes)
 		}
@@ -86,7 +86,7 @@ func (forceAPI *API) ConnectToStreamingAPI() {
 			json.Unmarshal(connBytes, &connectData)
 
 			for _, msg := range connectData {
-				cb := forceAPI.stream.SubscribedPushTopics[msg["channel"].(string)]
+				cb := forceAPI.stream.Subscriptions[msg["channel"].(string)]
 				if cb != nil {
 					cb(connBytes)
 				}
@@ -106,7 +106,7 @@ func (forceAPI *API) SubscribeToPushTopic(pushTopic string, callback func([]byte
 
 	defer subscribeResp.Body.Close()
 
-	forceAPI.stream.SubscribedPushTopics[topicString] = callback
+	forceAPI.stream.Subscriptions[topicString] = callback
 	return subscribeBytes, err
 
 }
