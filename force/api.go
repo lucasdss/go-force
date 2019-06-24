@@ -322,3 +322,18 @@ func (forceAPI *API) SubscribeToPushTopic(pushTopic string, callback func([]byte
 	return subscribeBytes, err
 
 }
+
+// SubscribeToEvent here we have to allow the ability to pass in a callback function
+func (forceAPI *API) SubscribeToEvent(eventName string, callback func([]byte, ...interface{})) ([]byte, error) {
+	eventString := "/event/" + eventName
+	subscribeParams := `{ "channel": "/meta/subscribe", "clientID": "` + forceAPI.stream.ClientID + `", "subscription": "` + eventString + `"}`
+
+	subscribeResp, _ := forceAPI.stream.httpPost(subscribeParams)
+	subscribeBytes, err := ioutil.ReadAll(subscribeResp.Body)
+
+	defer subscribeResp.Body.Close()
+
+	forceAPI.stream.Subscriptions[eventString] = callback
+	return subscribeBytes, err
+
+}
