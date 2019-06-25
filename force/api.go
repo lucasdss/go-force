@@ -274,7 +274,7 @@ func (forceAPI *API) ConnectToStreamingAPI() {
 	var data []map[string]interface{}
 	json.Unmarshal(handshakeBytes, &data)
 	fmt.Println(data)
-	forceAPI.stream.ClientID = data[0]["clientID"].(string)
+	forceAPI.stream.ClientID = data[0]["clientId"].(string)
 
 	//must handle error here
 
