@@ -1,13 +1,7 @@
 package force
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/http/cookiejar"
-
-	"golang.org/x/net/publicsuffix"
 )
 
 const (
@@ -254,86 +248,4 @@ func (forceAPI *API) RefreshToken() error {
 
 	forceAPI.oauth.AccessToken = res.AccessToken
 	return nil
-}
-
-// ConnectToStreamingAPI connects a ForceAPI client
-func (forceAPI *API) ConnectToStreamingAPI() {
-	//set up the client
-	cookiejarOptions := cookiejar.Options{
-		PublicSuffixList: publicsuffix.List,
-	}
-	jar, _ := cookiejar.New(&cookiejarOptions)
-	forceAPI.stream = &forceStreaming{"", map[string]func([]byte, ...interface{}){}, 0, forceAPI, &http.Client{Jar: jar}}
-
-	//handshake
-	var params = `{"channel":"/meta/handshake", "supportedConnectionTypes":["long-polling"], "version":"1.0"}`
-	handshakeResp, _ := forceAPI.stream.httpPost(params)
-	handshakeBytes, _ := ioutil.ReadAll(handshakeResp.Body)
-	defer handshakeResp.Body.Close()
-
-	var data []map[string]interface{}
-	json.Unmarshal(handshakeBytes, &data)
-	fmt.Println(data)
-	forceAPI.stream.ClientID = data[0]["clientId"].(string)
-
-	//must handle error here
-
-	// connect
-	connBytes, _ := forceAPI.stream.connect()
-
-	var connectData []map[string]interface{}
-	json.Unmarshal(connBytes, &connectData)
-	for _, msg := range data {
-		cb := forceAPI.stream.Subscriptions[msg["channel"].(string)]
-		if cb != nil {
-			cb(connBytes)
-		}
-		fmt.Println(string(connBytes))
-	}
-
-	go func() {
-		// got to allow disconnect, handle errors
-		for {
-			connBytes, _ = forceAPI.stream.connect()
-			json.Unmarshal(connBytes, &connectData)
-
-			for _, msg := range connectData {
-				cb := forceAPI.stream.Subscriptions[msg["channel"].(string)]
-				if cb != nil {
-					cb(connBytes)
-				}
-			}
-			//fmt.Println(string(connBytes))
-		}
-	}()
-}
-
-// SubscribeToPushTopic here we have to allow the ability to pass in a callback function
-func (forceAPI *API) SubscribeToPushTopic(pushTopic string, callback func([]byte, ...interface{})) ([]byte, error) {
-	topicString := "/topic/" + pushTopic
-	subscribeParams := `{ "channel": "/meta/subscribe", "clientID": "` + forceAPI.stream.ClientID + `", "subscription": "` + topicString + `"}`
-
-	subscribeResp, _ := forceAPI.stream.httpPost(subscribeParams)
-	subscribeBytes, err := ioutil.ReadAll(subscribeResp.Body)
-
-	defer subscribeResp.Body.Close()
-
-	forceAPI.stream.Subscriptions[topicString] = callback
-	return subscribeBytes, err
-
-}
-
-// SubscribeToEvent here we have to allow the ability to pass in a callback function
-func (forceAPI *API) SubscribeToEvent(eventName string, callback func([]byte, ...interface{})) ([]byte, error) {
-	eventString := "/event/" + eventName
-	subscribeParams := `{ "channel": "/meta/subscribe", "clientID": "` + forceAPI.stream.ClientID + `", "subscription": "` + eventString + `"}`
-
-	subscribeResp, _ := forceAPI.stream.httpPost(subscribeParams)
-	subscribeBytes, err := ioutil.ReadAll(subscribeResp.Body)
-
-	defer subscribeResp.Body.Close()
-
-	forceAPI.stream.Subscriptions[eventString] = callback
-	return subscribeBytes, err
-
 }
