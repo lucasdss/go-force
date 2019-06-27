@@ -24,18 +24,18 @@ import (
 	"github.com/taxnexus/go-force/sobjects"
 )
 
-type SomeCustomSObject struct {
+type someCustomSObject struct {
 	sobjects.BaseSObject
-	
+
 	Active    bool   `force:"Active__c"`
-	AccountId string `force:"Account__c"`
+	AccountID string `force:"Account__c"`
 }
 
-func (t *SomeCustomSObject) ApiName() string {
+func (t *someCustomSObject) apiName() string {
 	return "SomeCustomObject__c"
 }
 
-type SomeCustomSObjectQueryResponse struct {
+type someCustomSObjectQueryResponse struct {
 	sobjects.BaseQuery
 
 	Records []*SomeCustomSObject `force:"records"`
@@ -43,7 +43,7 @@ type SomeCustomSObjectQueryResponse struct {
 
 func main() {
 	// Init the force
-	forceApi, err := force.Create(
+	forceAPI, err := force.Create(
 		"YOUR-API-VERSION",
 		"YOUR-CLIENT-ID",
 		"YOUR-CLIENT-SECRET",
@@ -58,7 +58,7 @@ func main() {
 
 	// Get somCustomSObject by ID
 	someCustomSObject := &SomeCustomSObject{}
-	err = forceApi.GetSObject("Your-Object-ID", someCustomSObject)
+	err = forceAPI.GetSObject("Your-Object-ID", someCustomSObject)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -67,7 +67,7 @@ func main() {
 
 	// Query
 	someCustomSObjects := &SomeCustomSObjectQueryResponse{}
-	err = forceApi.Query("SELECT Id FROM SomeCustomSObject__c LIMIT 10", someCustomSObjects)
+	err = forceAPI.Query("SELECT Id FROM SomeCustomSObject__c LIMIT 10", someCustomSObjects)
 	if err != nil {
 		fmt.Println(err)
 	}
