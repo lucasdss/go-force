@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/nimajalali/go-force/force"
-	"github.com/nimajalali/go-force/sobjects"
+	"github.com/taxnexus/go-force/force"
+	"github.com/taxnexus/go-force/sobjects"
 )
 
 type SomeCustomSObject struct {
