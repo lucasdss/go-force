@@ -2,7 +2,6 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/taxnexus/go-force)](https://goreportcard.com/report/github.com/taxnexus/go-force)
 [![godoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/taxnexus/go-force)
-[![latest release](https://img.shields.io/github/release/skeema/tengo.svg)](https://github.com/taxnexus/go-force/releases)
 
 [Golang](http://golang.org/) API wrapper for Salesforce REST and Streaming APIs
 
