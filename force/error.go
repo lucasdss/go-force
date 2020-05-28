@@ -32,11 +32,7 @@ func (e APIErrors) String() string {
 
 // Validate checks errors and returns true if no error
 func (e APIErrors) Validate() bool {
-	if len(e) != 0 {
-		return true
-	}
-
-	return false
+	return len(e) != 0
 }
 
 func (e APIError) Error() string {
